@@ -12,8 +12,8 @@ opls::opls(int n_polynom_degree, int data_size){
             P[i].resize(data_size);
 
     c.resize(polynom_degree+2);
-    for(int i = 0; i < c.size(); ++i){
-        for(int j = 0; j <= i; ++j){
+    for(size_t i = 0; i < c.size(); ++i){
+        for(size_t j = 0; j <= i; ++j){
             c[i].resize(j+1);
         }
     }
@@ -36,7 +36,7 @@ void opls::QSP_count( const std::vector<double> &x){ ///j - height, i - width
     }
 
     while(j <= polynom_degree){
-        std::cout << j << std::endl; print_QSP();std::cout << std::endl;
+        //std::cout << j << std::endl; print_QSP();std::cout << std::endl;
         for(size_t i = 0; i < P[0].size(); i++)
             P[j][i] = (x[i] - Q[j-1]/S[j-1])*P[j-1][i] - (j > 1 ? S[j-1]/S[j-2]*P[j-2][i] : 0.0);
         for(size_t i = 0; i < x.size(); ++i)
@@ -48,14 +48,33 @@ void opls::QSP_count( const std::vector<double> &x){ ///j - height, i - width
 };
 
 void opls::orthogonal_polynom_coefficients_count(){
+    c[0][0] = 1.0;
+    c[1][0] = -Q[0]/S[0];   c[1][1] = 1.0;
 
+    for(size_t k = 2; k < c.size(); k++)
+    { //std::cout << "k = " << k;
+        for(size_t j = 0; j <= k; j++)
+        {
+            //std::cout << " j = " << j <<" ";
+            if(k != j){
+                c[k][j] = (j == 0 ? 0.0 : c[k-1][j-1])
+                    - Q[k-1]/S[k-1]*c[k-1][j]
+                        - (j == k ? 0.0 : S[k-1]/S[k-2]*c[k-2][j]);
+            }else{
+                c[k][j] = 1.0;
+                //std::cout << " c = " << c[k][j] << std::endl;
+            }
+        }
+    }
 }
 
 void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a){
     QSP_count(x);
-        info();
-        print_QSP();
+    info();
+        //print_QSP();
 
+    orthogonal_polynom_coefficients_count();
+        print_c();
 
 };
 
@@ -74,7 +93,7 @@ void opls::info(){
     std::cout << "opls object\n";
         std::cout << "polynom degree = " << polynom_degree << std::endl;
         std::cout << "P size = " << P.size() << "x" << P[0].size() << std::endl;
-        std::cout << "c size = " << c.size() << "x" << c[0].size() << std::endl;
+        std::cout << "c size = " << c.size() << "x" << c[0].size() << ".." << c[c.size()-1].size() << std::endl;
         std::cout << "Q size = " << Q.size() << std::endl;
         std::cout << "S size = " << S.size() << std::endl;
 }
