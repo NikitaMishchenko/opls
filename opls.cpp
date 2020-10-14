@@ -3,6 +3,16 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
+
+opls::opls()
+{
+    polynom_degree = 0.0;
+    P.resize(0);
+    c.resize(0);
+    Q.resize(0);
+    S.resize(0);
+}
 
 opls::opls(int n_polynom_degree, int data_size){
     polynom_degree = n_polynom_degree;
@@ -12,11 +22,9 @@ opls::opls(int n_polynom_degree, int data_size){
             P[i].resize(data_size);
 
     c.resize(polynom_degree+2);
-    for(size_t i = 0; i < c.size(); ++i){
-        for(size_t j = 0; j <= i; ++j){
+    for(size_t i = 0; i < c.size(); ++i)
+        for(size_t j = 0; j <= i; ++j)
             c[i].resize(j+1);
-        }
-    }
 
     Q.resize(polynom_degree+1);
     S.resize(polynom_degree+1);
@@ -68,25 +76,112 @@ void opls::orthogonal_polynom_coefficients_count(){
     }
 }
 
-void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a){
+void opls::regression_polynom_coefficient_count(const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
+{
+    ///g(x) = SUM(b0*p0(x) + b1*p1(x) + ... + bm*pm(x))
+    for(int k = 0; k <= polynom_degree; ++k)
+        for(int i = 0; i < y.size(); ++i)
+            b[k] += y[i]*P[k][i]/S[k];
+
+    ///g(x) = SUM(a0 + a1*x + a2*x^2 + ... + am*x^m)
+    for(int k = 0; k <= polynom_degree; ++k)
+        for(int i = k; i <= polynom_degree; ++i)
+            a[k] += b[i]*c[i][k];
+}
+
+void opls::manage_opls(const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a){
+
     QSP_count(x);
-    info();
-        //print_QSP();
-
     orthogonal_polynom_coefficients_count();
-        print_c();
-
+    regression_polynom_coefficient_count(y,b,a);
 };
 
 void opls::Test(){
+    ///true result(fixed_input)
+    std::vector<double> rS = {10, 69.17098425001, 328.7768235086, 962.75401849569};
+    std::vector<double> rQ = {7.82083, -27.512890311149, -1.7129366948718, 250.39738237352};
+
+    std::vector<std::vector<double>> rP = {
+                                            {1,1,1,1,1,1,1,1,1,1},
+                                            {-0.782083, 2.583797,2.855107,-0.217603,-3.809293,-4.617783,-1.899743,1.845867,3.175347,0.866387},
+                                            {-7.2281734230875,2.8073623836192,4.6030924341892,-7.1264829728247,3.0992779145833,8.9585998726813,-5.5494580486592,-1.3320551385999,6.9121153510662,-5.1442783729677},
+                                            {3.6796621840027,-2.8171823354639,3.1956859234941,-3.0255967835539,8.7399448097287,-12.367028020194,15.20316889478,-12.281110609376,12.297473127759,-12.625017191178},
+                                            };
+
+    std::vector<std::vector<double>> rc = {
+                                            {1},
+                                            {-0.782083,1},
+                                            {-7.2281734230875,-0.38433110143359,1},
+                                            {3.6796621840027,-11.983278954678,-0.37912107270775,1},
+                                            {20.209167857339,7.9217601883617,-14.812965853531,-0.63920555697172,1}
+                                            };
+
+    std::vector<double> rb = {29.906462, 15.897655646369, 2.3791287087584, 1.000001267701};
+    std::vector<double> ra = {3.9560877250835, 2.9999883433859, 2.0000071554385, 1.000001267701};
+
+
+    ///TEST START
+    ///DATA
+        ///fixed_input
         std::vector<double> x = {0, 3.36588, 3.63719, 0.56448, -3.02721, -3.8357, -1.11766, 2.62795, 3.95743, 1.64847};
         std::vector<double> y = {3.9561, 74.84479, 89.44289, 6.46668, -14.53888, -34.55881, 1.70531, 43.80101, 109.1294, 18.81613};
+        int polynom_degree = 3;
 
-        std::vector<double> rQ = {10,69.17098425001,328.7768235086,962.75401849569};
-        std::vector<double> rS = {7.82083,-27.512890311149,-1.7129366948718,250.39738237352};
+        ///oputput empty
+        std::vector<double> b(polynom_degree + 1, 0);
+        std::vector<double> a(polynom_degree + 1, 0);
 
-        std::vector<double> rb = {29.906462,15.897655646369, 2.3791287087584, 1.000001267701};
-        std::vector<double> ra = {3.9560877250835, 2.9999883433859, 2.0000071554385, 1.000001267701};
+    ///MANAGING
+    opls O(polynom_degree, x.size());
+        O.manage_opls(x, y, b, a);
+
+    ///REPROT
+    std::cout << "Difference S[]:\n";
+    for(int i = 0; i < O.S.size(); ++i)
+        std::cout << "\t" << i << " " << fabs(O.S[i]-rS[i]) << "\n";
+            std::cout << std::endl;
+
+    std::cout << "Difference Q[]:\n";
+    for(int i = 0; i < O.Q.size(); ++i)
+        std::cout << "\t" << i << " " << fabs(O.Q[i]-rQ[i]) << "\n";
+            std::cout << std::endl;
+
+    std::cout << "Difference P[][]:\n";
+    for(int i = 0; i < O.P.size(); ++i){
+        for(int j = 0; j < O.P[i].size(); ++j)
+            std::cout << "\t" << i << "x" << j << " " << fabs(O.P[i][j]-rP[i][j]) << "\t";
+                std::cout << std::endl;
+        }
+    std::cout << std::endl;
+
+    std::cout << "Difference c[][]:\n";
+    for(int i = 0; i < O.c.size(); ++i){
+        for(int j = 0; j < O.c[i].size(); ++j)
+            std::cout << "\t" << i << "x" << j << " " << fabs(O.c[i][j]-rc[i][j]) << "\t";
+                std::cout << std::endl;
+        }
+    std::cout << std::endl;
+
+
+    std::cout << "Difference b[]:\n";
+    for(int i = 0; i < b.size(); ++i)
+        std::cout << "\t" << i << " " << fabs(b[i]-rb[i]) << "\n";
+            std::cout << std::endl;
+
+    std::cout << "Difference a[]:\n";
+    for(int i = 0; i < a.size(); ++i)
+        std::cout << "\t" << i << " " << fabs(a[i]-ra[i]) << "\n";
+            std::cout << std::endl;
+
+
+
+    for(auto _b : b)
+        std::cout << _b << "\t";
+            std::cout << "\n";
+
+    for(auto _a : a)
+        std::cout << _a << "\t";
+            std::cout << "\n";
 }
 
 void opls::info(){

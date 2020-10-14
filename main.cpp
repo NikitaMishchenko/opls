@@ -10,12 +10,15 @@ int main()
     int polynom_degree = 3;
 
     ///oputput
+    std::vector<double> b(polynom_degree + 1, 0);
+    std::vector<double> a(polynom_degree + 1, 0);
 
-    std::vector<double> b(polynom_degree + 1);
-    std::vector<double> a(polynom_degree + 1);
+    opls n;
+    //n.info();
 
-    opls O(polynom_degree, x.size());
-    O.manage_opls(polynom_degree, x, y, b, a);
+    n.Test();
+
+
 
     ///O.Test();
 }

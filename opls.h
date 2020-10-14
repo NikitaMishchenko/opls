@@ -15,21 +15,26 @@ public:
     std::vector<double> S;              /// sum xi*Pi^2
     int polynom_degree = 0;
 
+    opls();
     opls(int n_polynom_degree, int data_size); /// init size of P, Q, S
+
 
     ///METHODS
     void QSP_count(const std::vector<double> &x); ///count orthogonal polynom values P[] in mesh nodes
     void orthogonal_polynom_coefficients_count(); ///count coefficient c[] of the orthogonal polynom
+    void regression_polynom_coefficient_count(const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a);
 
-    void manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a);
+    void manage_opls(const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a);
 
-    void Test();
+
 
     ///EXTRA
     void info();
     void print_QSP();
     void print_c();
 
+    void Test();
 };
+
 
 #endif // OPLS_H_INCLUDED
