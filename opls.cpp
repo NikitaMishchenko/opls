@@ -4,20 +4,28 @@
 #include <iostream>
 #include <vector>
 
-void opls::get_QS(int j, const std::vector<double> &x, std::vector<double> &Q, std::vector<double> &S)
+opls::opls(int polynom_degree, int data_size)
+{
+    P.resize(polynom_degree+1);
+        for(int i = 0; i < P.size(); ++i)
+            P[i].resize(data_size);
+
+    Q.resize(data_size);
+    S.resize(data_size);
+}
+
+
+void opls::QS_count(const std::vector<double> &x)
 {
 
 };
 
 void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
 {
-    std::vector<double> Q(x.size(), 0);
-    std::vector<double> S(x.size(), 0);
+    QS_count(x);
 
-    for(int j = 0; j < x.size(); ++j){
-        get_QS(j, x, Q, S);
+    for(int j = 0; j < x.size(); ++j)
             std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
-    }
 };
 
 void opls::Test()

@@ -9,10 +9,15 @@ class opls
 {
 public:
 
-    std::vector<std::vector<double>> P;
+    std::vector<std::vector<double>> P; /// values of polynoms in mesh nodes
+    std::vector<double> Q;              /// sum Pi^2
+    std::vector<double> S;              /// sum xi*Pi^2
+    int polynom_degree = 0;
+
+    opls(int polynom_degree, int data_size); /// init size of P, Q, S
 
     ///METHODS
-    void get_QS(int j, const std::vector<double> &x, std::vector<double> &Q, std::vector<double> &S);
+    void QS_count(const std::vector<double> &x);
 
     void manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a);
 
