@@ -4,28 +4,50 @@
 #include <iostream>
 #include <vector>
 
-opls::opls(int polynom_degree, int data_size)
+opls::opls(int n_polynom_degree, int data_size)
 {
+    polynom_degree = n_polynom_degree;
+
     P.resize(polynom_degree+1);
-        for(int i = 0; i < P.size(); ++i)
+        for(size_t i = 0; i < P.size(); ++i)
             P[i].resize(data_size);
 
-    Q.resize(data_size);
-    S.resize(data_size);
+    Q.resize(polynom_degree+1);
+    S.resize(polynom_degree+1);
 }
 
 
-void opls::QS_count(const std::vector<double> &x)
+void opls::QSP_count( const std::vector<double> &x) ///j - height, i - width
 {
-    for(int i = 0; i < P[0].size(); i++) ///first row
-        P[0][i] = 1.0;
+    int j = 0;
+    ///first row
+    if(j == 0){
+        for(size_t i = 0; i < P[0].size(); i++)
+            P[j][i] = 1.0;
+        for(auto _x : x)
+            Q[j] += _x;
+        S[j] = P[j].size(); ///summ of Pj^2
+        j++;
+    }
 
+    while(j <= polynom_degree){
+        std::cout << j << std::endl; print_QSP();std::cout << std::endl;
+        for(size_t i = 0; i < P[0].size(); i++)
+            P[j][i] = (x[i] - Q[j-1]/S[j-1])*P[j-1][i] - (j > 1 ? S[j-1]/S[j-2]*P[j-2][i] : 0.0);
+        for(size_t i = 0; i < x.size(); ++i)
+            Q[j] += x[i]*P[j][i]*P[j][i];
+        for(size_t i = 0; i < P[j].size(); ++i)
+            S[j] += P[j][i]*P[j][i];
+        j++;
+    }
 };
 
 void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
 {
-    QS_count(x);
+    QSP_count(x);
+        info();
         print_QSP();
+
 
 };
 
@@ -41,13 +63,22 @@ void opls::Test()
         std::vector<double> ra = {3.9560877250835, 2.9999883433859, 2.0000071554385, 1.000001267701};
 }
 
+void opls::info()
+{
+    std::cout << "opls object\n";
+        std::cout << "polynom degree = " << polynom_degree << std::endl;
+        std::cout << "P size = " << P.size() << "x" << P[0].size() << std::endl;
+        std::cout << "Q size = " << Q.size() << std::endl;
+        std::cout << "S size = " << S.size() << std::endl;
+}
+
 void opls::print_QSP()
 {
-    for(int j = 0; j < Q.size(); ++j)
+    for(size_t j = 0; j < Q.size(); ++j)
         std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
 
-    for(int i = 0; i <  P.size(); ++i){
-        for(int j = 0; j < P[i].size(); ++j){
+    for(size_t i = 0; i <  P.size(); ++i){
+        for(size_t j = 0; j < P[i].size(); ++j){
             std::cout << P[i][j] << "\t";
         }
         std::cout << std::endl;
