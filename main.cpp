@@ -14,11 +14,5 @@ int main()
     std::vector<double> a(polynom_degree + 1, 0);
 
     opls n;
-    //n.info();
-
-    n.Test();
-
-
-
-    ///O.Test();
+        n.Test();
 }
