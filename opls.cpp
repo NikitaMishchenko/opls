@@ -1,8 +1,24 @@
 
 #include "opls.h"
 
+#include <iostream>
 #include <vector>
 
+void opls::get_QS(int j, const std::vector<double> &x, std::vector<double> &Q, std::vector<double> &S)
+{
+
+};
+
+void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
+{
+    std::vector<double> Q(x.size(), 0);
+    std::vector<double> S(x.size(), 0);
+
+    for(int j = 0; j < x.size(); ++j){
+        get_QS(j, x, Q, S);
+            std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
+    }
+};
 
 void opls::Test()
 {
