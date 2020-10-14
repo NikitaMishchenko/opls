@@ -17,15 +17,16 @@ opls::opls(int polynom_degree, int data_size)
 
 void opls::QS_count(const std::vector<double> &x)
 {
+    for(int i = 0; i < P[0].size(); i++) ///first row
+        P[0][i] = 1.0;
 
 };
 
 void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
 {
     QS_count(x);
+        print_QSP();
 
-    for(int j = 0; j < x.size(); ++j)
-            std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
 };
 
 void opls::Test()
@@ -38,4 +39,17 @@ void opls::Test()
 
         std::vector<double> rb = {29.906462,15.897655646369, 2.3791287087584, 1.000001267701};
         std::vector<double> ra = {3.9560877250835, 2.9999883433859, 2.0000071554385, 1.000001267701};
+}
+
+void opls::print_QSP()
+{
+    for(int j = 0; j < Q.size(); ++j)
+        std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
+
+    for(int i = 0; i <  P.size(); ++i){
+        for(int j = 0; j < P[i].size(); ++j){
+            std::cout << P[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
 }
