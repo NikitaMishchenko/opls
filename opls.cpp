@@ -4,21 +4,26 @@
 #include <iostream>
 #include <vector>
 
-opls::opls(int n_polynom_degree, int data_size)
-{
+opls::opls(int n_polynom_degree, int data_size){
     polynom_degree = n_polynom_degree;
 
     P.resize(polynom_degree+1);
         for(size_t i = 0; i < P.size(); ++i)
             P[i].resize(data_size);
 
+    c.resize(polynom_degree+2);
+    for(int i = 0; i < c.size(); ++i){
+        for(int j = 0; j <= i; ++j){
+            c[i].resize(j+1);
+        }
+    }
+
     Q.resize(polynom_degree+1);
     S.resize(polynom_degree+1);
 }
 
 
-void opls::QSP_count( const std::vector<double> &x) ///j - height, i - width
-{
+void opls::QSP_count( const std::vector<double> &x){ ///j - height, i - width
     int j = 0;
     ///first row
     if(j == 0){
@@ -42,8 +47,11 @@ void opls::QSP_count( const std::vector<double> &x) ///j - height, i - width
     }
 };
 
-void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a)
-{
+void opls::orthogonal_polynom_coefficients_count(){
+
+}
+
+void opls::manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a){
     QSP_count(x);
         info();
         print_QSP();
@@ -51,8 +59,7 @@ void opls::manage_opls(int polynom_order, const std::vector<double> &x, const st
 
 };
 
-void opls::Test()
-{
+void opls::Test(){
         std::vector<double> x = {0, 3.36588, 3.63719, 0.56448, -3.02721, -3.8357, -1.11766, 2.62795, 3.95743, 1.64847};
         std::vector<double> y = {3.9561, 74.84479, 89.44289, 6.46668, -14.53888, -34.55881, 1.70531, 43.80101, 109.1294, 18.81613};
 
@@ -63,23 +70,31 @@ void opls::Test()
         std::vector<double> ra = {3.9560877250835, 2.9999883433859, 2.0000071554385, 1.000001267701};
 }
 
-void opls::info()
-{
+void opls::info(){
     std::cout << "opls object\n";
         std::cout << "polynom degree = " << polynom_degree << std::endl;
         std::cout << "P size = " << P.size() << "x" << P[0].size() << std::endl;
+        std::cout << "c size = " << c.size() << "x" << c[0].size() << std::endl;
         std::cout << "Q size = " << Q.size() << std::endl;
         std::cout << "S size = " << S.size() << std::endl;
 }
 
-void opls::print_QSP()
-{
+void opls::print_QSP(){
     for(size_t j = 0; j < Q.size(); ++j)
         std::cout << "j = " << j << " Q = " << Q[j] << " S = " << S[j] << std::endl;
 
     for(size_t i = 0; i <  P.size(); ++i){
         for(size_t j = 0; j < P[i].size(); ++j){
             std::cout << P[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void opls::print_c(){
+    for(size_t i = 0; i < c.size(); ++i){
+        for(size_t j = 0; j < c[i].size(); ++j){
+            std::cout << c[i][j] << "\t";
         }
         std::cout << std::endl;
     }

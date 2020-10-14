@@ -15,7 +15,9 @@ int main()
     std::vector<double> a(polynom_degree + 1);
 
     opls O(polynom_degree, x.size());
-        O.manage_opls(polynom_degree, x, y, b, a);
+        O.print_c();
+        O.print_QSP();
+        ///O.manage_opls(polynom_degree, x, y, b, a);
 
     ///O.Test();
 }

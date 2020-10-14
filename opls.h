@@ -9,7 +9,8 @@ class opls
 {
 public:
 
-    std::vector<std::vector<double>> P; /// values of polynoms in mesh nodes
+    std::vector<std::vector<double>> P; /// values of orthogonal polynom in mesh nodes
+    std::vector<std::vector<double>> c; /// coefficients of polynom from meshed nodes /// bottom diagonal matrix
     std::vector<double> Q;              /// sum Pi^2
     std::vector<double> S;              /// sum xi*Pi^2
     int polynom_degree = 0;
@@ -17,7 +18,8 @@ public:
     opls(int n_polynom_degree, int data_size); /// init size of P, Q, S
 
     ///METHODS
-    void QSP_count(const std::vector<double> &x);
+    void QSP_count(const std::vector<double> &x); ///count orthogonal polynom values P[] in mesh nodes
+    void orthogonal_polynom_coefficients_count(); ///count coefficient c[] of the orthogonal polynom
 
     void manage_opls(int polynom_order, const std::vector<double> &x, const std::vector<double> &y, std::vector<double> &b, std::vector<double> &a);
 
@@ -26,6 +28,7 @@ public:
     ///EXTRA
     void info();
     void print_QSP();
+    void print_c();
 
 };
 
